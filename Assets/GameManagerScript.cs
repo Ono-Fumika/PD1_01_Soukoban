@@ -4,6 +4,49 @@ using UnityEngine;
 
 public class GameManagerScript : MonoBehaviour
 {
+    void PrintArray()
+    {
+        string debugText = "";
+        for(int i = 0; i < map.Length; i++)
+        {
+            debugText += map[i].ToString() + ",";
+        }
+        Debug.Log(debugText);
+    }
+
+    int GetPlayerIndex()
+    {
+        for(int i = 0; i < map.Length; i++)
+        {
+            if (map[i] == 1)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    bool MoveNumber(int number,int moveFrom,int moveTo)
+    {
+        if (moveTo < 0||moveTo >= map.Length)
+        {
+            // 動けない条件を先に書き、リターンする。
+            return false;
+        }
+        // 移動先に箱があったら
+        if (map[moveTo] == 2)
+        {
+            int velocity = moveTo - moveFrom;
+            bool success = MoveNumber(2, moveTo, moveTo + velocity);
+            if (!success) { 
+                return false; 
+            }
+        }
+        map[moveTo] = number;
+        map[moveFrom] = 0;
+        return true;
+    }
+
     // 配列の宣言
     int[] map;
 
@@ -11,16 +54,9 @@ public class GameManagerScript : MonoBehaviour
     void Start()
     {
         // 配列の実態の生成と初期化
-        map = new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0 };
+        map = new int[] { 0, 0, 2, 1, 0, 2, 0, 0, 0 };
         // 追加。文字列の宣言と初期化
-        string debugText = "";
-        for(int i = 0; i < map.Length; i++)
-        {
-            // 変更。文字列に結合する
-            debugText += map[i].ToString() + ",";
-        }
-        // 結合した文字列を出力
-        Debug.Log(debugText);
+        PrintArray();
     }
 
     // Update is called once per frame
@@ -30,7 +66,7 @@ public class GameManagerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             // 見つからなかった時のために-1で初期化
-            int playerIndex = -1;
+            int playerIndex = GetPlayerIndex();
             // 要素数はmap.Lengthで取得
             for (int i = 0; i < map.Length; i++)
             {
@@ -41,25 +77,16 @@ public class GameManagerScript : MonoBehaviour
                 }
             }
 
-            if (playerIndex < map.Length - 1)
-            {
-                map[playerIndex + 1] = 1;
-                map[playerIndex] = 0;
-            }
+            MoveNumber(1, playerIndex, playerIndex + 1);
 
-            string debugText = "";
-            for(int i = 0; i < map.Length; i++)
-            {
-                debugText += map[i].ToString() + ",";
-            }
-            Debug.Log(debugText);
+            PrintArray();
         }
 
         // 左移動
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             // 見つからなかった時のために-1で初期化
-            int playerIndex = -1;
+            int playerIndex = GetPlayerIndex();
             // 要素数はmap.Lengthで取得
             for (int i = 0; i < map.Length; i++)
             {
@@ -70,18 +97,9 @@ public class GameManagerScript : MonoBehaviour
                 }
             }
 
-            if (playerIndex > 0)
-            {
-                map[playerIndex - 1] = 1;
-                map[playerIndex] = 0;
-            }
+            MoveNumber(1, playerIndex, playerIndex - 1);
 
-            string debugText = "";
-            for (int i = 0; i < map.Length; i++)
-            {
-                debugText += map[i].ToString() + ",";
-            }
-            Debug.Log(debugText);
+            PrintArray();
         }
     }
 }
